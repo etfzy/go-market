@@ -26,7 +26,7 @@ func CreateConsumer(topic string, idx uint64, fn ConsumerFn, queue chan *Event) 
 }
 
 func (c *Consumer) ConsumerRun() {
-	fmt.Println("consumer start ", c.topic)
+	fmt.Println("consumer start ", c.topic, c.idx)
 loop:
 	for {
 		select {
@@ -38,5 +38,5 @@ loop:
 		}
 	}
 
-	fmt.Println("consumer exit ", c.topic)
+	fmt.Println("consumer exit ", c.topic, c.idx)
 }
