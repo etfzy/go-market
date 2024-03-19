@@ -2,6 +2,7 @@ package gomarket
 
 import (
 	"context"
+	"errors"
 )
 
 type Event struct {
@@ -9,6 +10,15 @@ type Event struct {
 	input  any
 	output any
 	notify chan error
+}
+
+func (e *Event) WaitNotify(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return errors.New("context done...")
+	case err := <-e.notify:
+		return err
+	}
 }
 
 func createEvent(ctx context.Context, msg any) *Event {
