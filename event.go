@@ -21,6 +21,10 @@ func (e *Event) WaitNotify(ctx context.Context) error {
 	}
 }
 
+func (e *Event) GetOutput() any {
+	return e.output
+}
+
 func createEvent(ctx context.Context, msg any) *Event {
 	return &Event{
 		ctx:    ctx,
