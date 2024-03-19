@@ -22,9 +22,11 @@ func CreateMarket(topic string, cap uint64, fn ConsumerFn) *Market {
 		panic("cap must >= 1")
 	}
 	return &Market{
-		topic:  topic,
-		queues: make(chan *Event, cap),
-		fn:     fn,
+		topic:          topic,
+		queues:         make(chan *Event, cap),
+		fn:             fn,
+		consumers:      make([]*Consumer, 0, 1024),
+		consumber_lock: sync.Mutex{},
 	}
 }
 
