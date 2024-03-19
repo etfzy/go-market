@@ -6,9 +6,10 @@ import (
 )
 
 type Market struct {
-	topic  string
-	queues chan *Event
-	cap    uint64
+	topic     string
+	queues    chan *Event
+	consumers []*Consumer
+	cap       uint64
 }
 
 func CreateMarket(topic string, cap uint64) *Market {
@@ -28,7 +29,14 @@ func (m *Market) CreateConsumer(fn ConsumerFn, number int64) {
 
 	for i := 0; i < int(number); i++ {
 		c := CreateConsumer(m.topic, uint64(i), fn, m.queues)
+		m.consumers = append(m.consumers, c)
 		go c.ConsumerRun()
+	}
+}
+
+func (m *Market) Stop() {
+	for _, c := range m.consumers {
+		c.Stop()
 	}
 }
 

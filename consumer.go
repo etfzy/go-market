@@ -25,6 +25,15 @@ func CreateConsumer(topic string, idx uint64, fn ConsumerFn, queue chan *Event) 
 	}
 }
 
+func (c *Consumer) Stop() {
+	fmt.Println("prepare consumer stop ", c.topic, c.idx)
+
+	select {
+	case c.stop <- 1:
+	default:
+	}
+}
+
 func (c *Consumer) ConsumerRun() {
 	fmt.Println("consumer start ", c.topic, c.idx)
 loop:

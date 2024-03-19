@@ -25,4 +25,6 @@ func TestEvent(t *testing.T) {
 
 	fmt.Println(out, err)
 
+	market.Stop()
+
 }
