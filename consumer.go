@@ -41,7 +41,9 @@ loop:
 		select {
 		case event := <-c.queue:
 			out, err := c.fn(event.ctx, c.idx, event.input)
-			event.reponse(out, err)
+			if event.needout {
+				event.reponse(out, err)
+			}
 		case <-c.stop:
 			break loop
 		}

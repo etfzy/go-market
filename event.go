@@ -6,10 +6,11 @@ import (
 )
 
 type Event struct {
-	ctx    context.Context
-	input  any
-	output any
-	notify chan error
+	ctx     context.Context
+	input   any
+	output  any
+	notify  chan error
+	needout bool
 }
 
 func (e *Event) WaitNotify(ctx context.Context) error {
@@ -25,11 +26,20 @@ func (e *Event) GetOutput() any {
 	return e.output
 }
 
-func createEvent(ctx context.Context, msg any) *Event {
-	return &Event{
-		ctx:    ctx,
-		input:  msg,
-		notify: make(chan error, 1),
+func createEvent(ctx context.Context, msg any, needout bool) *Event {
+	if needout {
+		return &Event{
+			ctx:     ctx,
+			input:   msg,
+			notify:  make(chan error, 1),
+			needout: needout,
+		}
+	} else {
+		return &Event{
+			ctx:     ctx,
+			input:   msg,
+			needout: needout,
+		}
 	}
 }
 

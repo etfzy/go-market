@@ -90,7 +90,7 @@ func (m *Market) Stop() {
 }
 
 func (m *Market) PublishWithWait(ctx context.Context, msg any) (any, error) {
-	event := createEvent(ctx, msg)
+	event := createEvent(ctx, msg, true)
 
 	err := ctx.Err()
 
@@ -110,7 +110,7 @@ func (m *Market) PublishWithWait(ctx context.Context, msg any) (any, error) {
 }
 
 func (m *Market) PublishAsync(ctx context.Context, msg any) (*Event, error) {
-	event := createEvent(ctx, msg)
+	event := createEvent(ctx, msg, true)
 
 	err := ctx.Err()
 
@@ -125,4 +125,22 @@ func (m *Market) PublishAsync(ctx context.Context, msg any) (*Event, error) {
 	}
 
 	return event, nil
+}
+
+func (m *Market) PublishWithoutOutput(ctx context.Context, msg any) error {
+	event := createEvent(ctx, msg, false)
+
+	err := ctx.Err()
+
+	if err != nil {
+		return err
+	}
+
+	select {
+	case m.queues <- event:
+	default:
+		return errors.New("market queue is full...")
+	}
+
+	return nil
 }
