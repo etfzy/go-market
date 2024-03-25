@@ -1,51 +1,52 @@
 package gomarket
 
 import (
-	"context"
 	"fmt"
-)
 
-type ConsumerFn func(ctx context.Context, goroutine_id uint64, input any) (any, error)
+	"github.com/etfzy/go-market/pipe"
+)
 
 type Consumer struct {
 	idx   uint64
 	topic string
-	fn    ConsumerFn
-	queue chan *Event
 	stop  chan int
+	pipe  *pipe.Pipe
 }
 
-func CreateConsumer(topic string, idx uint64, fn ConsumerFn, queue chan *Event) *Consumer {
+func CreateConsumer(topic string, idx uint64, pipe *pipe.Pipe) *Consumer {
 	return &Consumer{
 		topic: topic,
 		idx:   idx,
-		fn:    fn,
-		queue: queue,
 		stop:  make(chan int, 1),
-	}
-}
-
-func (c *Consumer) Stop() {
-	fmt.Println("prepare consumer stop ", c.topic, c.idx)
-
-	select {
-	case c.stop <- 1:
-	default:
+		pipe:  pipe,
 	}
 }
 
 func (c *Consumer) ConsumerRun() {
-	fmt.Println("consumer start ", c.topic, c.idx)
-loop:
-	for {
-		select {
-		case event := <-c.queue:
-			out, err := c.fn(event.ctx, c.idx, event.input)
-			if event.needout {
-				event.reponse(out, err)
+
+	for c.pipe.CheckState() {
+
+		for {
+			if !c.pipe.CheckState() {
+				break
 			}
-		case <-c.stop:
-			break loop
+
+			event := c.pipe.PopEvt()
+			if event != nil {
+				event.Consume(c.topic, c.idx)
+			} else {
+				break
+			}
+		}
+
+		if !c.pipe.CheckState() {
+			break
+		}
+
+		c.pipe.WaitCond()
+
+		if !c.pipe.CheckState() {
+			break
 		}
 	}
 
