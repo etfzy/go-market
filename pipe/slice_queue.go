@@ -28,8 +28,9 @@ func (sq *SliceQueue) PublishEvt(e events.Event) error {
 }
 
 func (sq *SliceQueue) CancelEvt(e events.Event) error {
-	for _, v := range sq.queue {
+	for k, v := range sq.queue {
 		if v == e {
+			sq.queue = append(sq.queue[:k],sq.queue[k+1:]...)
 			return nil
 		}
 	}

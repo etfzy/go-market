@@ -9,7 +9,6 @@ import (
 type Consumer struct {
 	idx   uint64
 	topic string
-	stop  chan int
 	pipe  *pipe.Pipe
 }
 
@@ -17,7 +16,6 @@ func CreateConsumer(topic string, idx uint64, pipe *pipe.Pipe) *Consumer {
 	return &Consumer{
 		topic: topic,
 		idx:   idx,
-		stop:  make(chan int, 1),
 		pipe:  pipe,
 	}
 }
